@@ -123,27 +123,42 @@ def optimum_policy2D(grid,init,goal,cost):
     while init_reached > 0: #TODO - Temporary to avoid infinite loop until goal found correctly
         for a in range(len(action)):
             #next_dir = (prev_dir - action[a]) % len(forward) ###TODO - This is only true if no turns....
-            next_row = prev_row - forward[prev_dir][0]
-            next_col = prev_col - forward[prev_dir][1]
-            next_ = [next_row, next_col, next_dir]
+            next_row = prev_row - forward[(prev_dir - a) % len(action)][0]
+            next_col = prev_col - forward[(prev_dir - a) % len(action)][1]
+            #next_ = [next_row, next_col, next_dir]
 
             #print next_row, next_col, next_dir
             #print next
    
             if next_row >=0 and next_row < len(grid): #check row co-ordinate valid
-                #print "watch2"
                 if next_col >=0 and next_col < len(grid[0]): #check col co-ordinate valid
-                    #print "watch3"
-                    #print next_r, grid[next_col][next_row]
                     if grid[next_row][next_col] == 0: #check cell occupiable
-                        for poss_dir in [0,1,2,3]:
-                            print "Pre  - V,R,C,D: ", prev_val, prev_row, prev_col, prev_dir
-                            print "Next - V,R,C,D: ", value[poss_dir][next_row][next_col], next_row, next_col, poss_dir
-                            #print value[next_dir][next_row][next_col], prev_row, prev_col, next_dir, cost[next_dir]
-                            if value[poss_dir][next_row][next_col] - prev_val == cost[(poss_dir-prev_dir+1)%len(cost)]: ##TODO - FIX
+                        #for poss_dir in [prev_dir - 1, prev_dir, prev_dir + 1]:
+                        for a2 in action:
+                            poss_dir = (prev_dir - a2) % len(forward)
+                            print "TESTING"
+                            print "A, A2, PDir -        : ", a, a2, poss_dir
+                            print "Pre     -     V,R,C,D: ", prev_val, prev_row, prev_col, prev_dir
+                            print "Next    -     V,R,C,D: ", value[poss_dir][next_row][next_col], next_row, next_col, poss_dir
+                            #print "Cost    -        : ", cost[(poss_dir-prev_dir+1)%len(cost)]
+                            print "Cost    -        : ", cost[action.index(a2)]
+                            print ""
+
+
+                            #if value[poss_dir][next_row][next_col] - prev_val == cost[action.index(prev_dir-poss_dir)]: ##TODO - FIX
+                            if value[poss_dir][next_row][next_col] - prev_val == cost[action.index(a2)]: ##TODO - FIX
                                 #print next_row, next_col, next_dir
-                                print "Hit"
-                                policy2D[prev_row][prev_col] = action_name[a]
+                                #print "Hit"
+                                print "HIT"
+                                print "A, A2, PDir -        : ", a, a2, poss_dir
+                                print "Pre     -     V,R,C,D: ", prev_val, prev_row, prev_col, prev_dir
+                                print "Next    -     V,R,C,D: ", value[poss_dir][next_row][next_col], next_row, next_col, poss_dir
+                                #print "Cost    -        : ", cost[(poss_dir-prev_dir+1)%len(cost)]
+                                print "Cost    -        : ", cost[action.index(a2)]
+                                print ""
+                                #policy2D[prev_row][prev_col] = action_name[action.index(prev_dir-poss_dir)]
+                                #policy2D[prev_row][prev_col] = action_name[action.index(a2)]
+                                policy2D[next_row][next_col] = action_name[action.index(a2)]
                                 tmp_prev_val = value[poss_dir][next_row][next_col]
                                 tmp_prev_row = next_row
                                 tmp_prev_col = next_col
@@ -156,7 +171,7 @@ def optimum_policy2D(grid,init,goal,cost):
         prev_row = tmp_prev_row
         prev_col = tmp_prev_col
         prev_dir = tmp_prev_dir
-        #print prev_val, prev_row, prev_col, prev_dir
+        print prev_val, prev_row, prev_col, prev_dir
         init_reached -= 1
                         
     for l in value:
