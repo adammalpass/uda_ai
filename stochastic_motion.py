@@ -42,58 +42,61 @@ def stochastic_value(grid,goal,cost_step,collision_cost,success_prob):
     #set value of goal to 0
     value[goal[0]][goal[1]] = 0
 
-    #iterate through each item in list (except goal) to update probability
-    for row in range(len(grid)):
-        for col in range(len(grid[0])):
-            if not (row is goal[0] and col is goal[1]):
-                #value[row][col] = 7
-                #break
+    num_loop = 10000
 
-                #row = 0
-                #col = 2
-                min_val = 1000000
-                min_d = None
+    while num_loop > 0:
+        #iterate through each item in list (except goal) to update probability
+        for row in range(len(grid)):
+            for col in range(len(grid[0])):
+                if not (row is goal[0] and col is goal[1]):
+                    #value[row][col] = 7
+                    #break
 
-                #check probability for each delta
-                for d in range(len(delta)):
-                    success_row = row + delta[d][0]
-                    success_col = col + delta[d][1]
+                    #row = 0
+                    #col = 2
+                    min_val = 1000000
+                    min_d = None
 
-                    left_row = row + delta[(d+1)%len(delta)][0]
-                    left_col = col + delta[(d+1)%len(delta)][1]
+                    #check probability for each delta
+                    for d in range(len(delta)):
+                        success_row = row + delta[d][0]
+                        success_col = col + delta[d][1]
 
-                    right_row = row + delta[(d-1)%len(delta)][0]
-                    right_col = col + delta[(d-1)%len(delta)][1]
-                    
+                        left_row = row + delta[(d+1)%len(delta)][0]
+                        left_col = col + delta[(d+1)%len(delta)][1]
 
-                    #print [success_row, success_col], [left_row, left_col], [right_row, right_col]
-                    
-                    success_val = collision_cost
-                    if success_row >= 0 and success_row < len(grid):
-                        if success_col >= 0 and success_col < len(grid[0]):
-                            success_val = value[success_row][success_col]
-                    
-                    left_val = collision_cost
-                    if left_row >= 0 and left_row < len(grid):
-                        if left_col >= 0 and left_col < len(grid[0]):
-                            left_val = value[left_row][left_col]
+                        right_row = row + delta[(d-1)%len(delta)][0]
+                        right_col = col + delta[(d-1)%len(delta)][1]
                         
-                    right_val = collision_cost
-                    if right_row >= 0 and right_row < len(grid):
-                        if right_col >= 0 and right_col < len(grid[0]):
-                            right_val = value[right_row][right_col]
 
-                    new_val = success_prob * success_val + failure_prob * left_val + failure_prob * right_val + cost_step
-                    #print new_val
-                    if new_val < min_val:
-                        min_val = new_val
-                        min_d = d
+                        #print [success_row, success_col], [left_row, left_col], [right_row, right_col]
+                        
+                        success_val = collision_cost
+                        if success_row >= 0 and success_row < len(grid):
+                            if success_col >= 0 and success_col < len(grid[0]):
+                                success_val = value[success_row][success_col]
+                        
+                        left_val = collision_cost
+                        if left_row >= 0 and left_row < len(grid):
+                            if left_col >= 0 and left_col < len(grid[0]):
+                                left_val = value[left_row][left_col]
+                            
+                        right_val = collision_cost
+                        if right_row >= 0 and right_row < len(grid):
+                            if right_col >= 0 and right_col < len(grid[0]):
+                                right_val = value[right_row][right_col]
 
-                #print min_val, min_d
-                value[row][col] = min_val
-                policy[row][col] = delta_name[min_d]
+                        new_val = success_prob * success_val + failure_prob * left_val + failure_prob * right_val + cost_step
+                        #print new_val
+                        if new_val < min_val:
+                            min_val = new_val
+                            min_d = d
 
+                    #print min_val, min_d
+                    value[row][col] = min_val
+                    policy[row][col] = delta_name[min_d]
 
+        num_loop -= 1
 
 
 
