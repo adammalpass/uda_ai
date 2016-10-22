@@ -44,6 +44,15 @@ goal = [2, 0] # given in the form [row,col]
 cost = [2, 1, 2] # cost has 3 values, corresponding to making 
                   # a right turn, no turn, and a left turn
 
+grid = [[0, 0, 0, 0, 1, 1],
+        [0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0],
+        [0, 0, 1, 1, 1, 0],
+        [0, 0, 0, 0, 1, 0]]
+init = [4, 5, 0]
+goal = [4, 3]
+cost = [1, 1, 1]
+
 # EXAMPLE OUTPUT:
 # calling optimum_policy2D with the given parameters should return 
 # [[' ', ' ', ' ', 'R', '#', 'R'],
@@ -125,7 +134,7 @@ def optimum_policy2D(grid,init,goal,cost):
     prev_prev_row = None
     prev_prev_col = None
     
-    init_reached = 10
+    init_reached = 30
     
     while init_reached > 0: #TODO - Temporary to avoid infinite loop until goal found correctly
         #for a in range(len(action)):
@@ -177,6 +186,7 @@ def optimum_policy2D(grid,init,goal,cost):
                             
                                 if next_row == init[0] and next_col == init[1]:
                                     print "************   REACHED GOAL   **************"
+                                    policy2D[next_row][next_col] = action_name[action.index(init[2])]
                                     init_reached = True
         prev_prev_row = prev_row
         prev_prev_col = prev_col                        
