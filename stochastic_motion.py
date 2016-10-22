@@ -42,13 +42,13 @@ def stochastic_value(grid,goal,cost_step,collision_cost,success_prob):
     #set value of goal to 0
     value[goal[0]][goal[1]] = 0
 
-    num_loop = 10000
+    num_loop = 100
 
     while num_loop > 0:
         #iterate through each item in list (except goal) to update probability
         for row in range(len(grid)):
             for col in range(len(grid[0])):
-                if not (row is goal[0] and col is goal[1]):
+                if not ((row is goal[0] and col is goal[1]) or grid[row][col] is 1):
                     #value[row][col] = 7
                     #break
 
