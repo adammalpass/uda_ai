@@ -93,30 +93,30 @@ def optimum_policy2D(grid,init,goal,cost):
         for i in toAdd:
             opened.append(i)
     
-    max = 0
+    max_val = 0
     max_dir = -1    
-    for dir in range(len(value)):
-        goal_value = value[dir][goal[0]][goal[1]]
-        if goal_value != 99 and goal_value > max:
-            max = goal_value
-            max_dir = dir
+    for poss_dir in range(len(value)):
+        goal_value = value[poss_dir][goal[0]][goal[1]]
+        if goal_value != 99 and goal_value > max_val:
+            max_val = goal_value
+            max_dir = poss_dir
             
-    print "Best goal value: " + str(max) + " from direction: " + str(forward_name[max_dir])
+    print "Best goal value: " + str(max_val) + " from direction: " + str(forward_name[max_dir])
     
-    rev_row = goal[0]-forward[max_dir][0]
-    rev_col = goal[1]-forward[max_dir][1]
-    rev_goal = [rev_row, rev_col]
-    rev_val = value[max_dir][rev_row][rev_col]
+    #rev_row = goal[0]-forward[max_dir][0]
+    #rev_col = goal[1]-forward[max_dir][1]
+    #rev_goal = [rev_row, rev_col]
+    #rev_val = value[max_dir][rev_row][rev_col]
     #print rev_val
     #print rev_goal
     
     #policy2D[rev_row][rev_col] = max_dir #TODO
     
-    prev_val = rev_val
+    prev_val = max_val
     #print prev_val
     prev_dir = max_dir
-    prev_row = rev_row
-    prev_col = rev_col
+    prev_row = goal[0]
+    prev_col = goal[1]
     
     init_reached = 10
     
