@@ -41,7 +41,7 @@ init = [4, 3, 0] # given in the form [row,col,direction]
                 
 goal = [2, 0] # given in the form [row,col]
 
-cost = [2, 1, 20] # cost has 3 values, corresponding to making 
+cost = [2, 1, 2] # cost has 3 values, corresponding to making 
                   # a right turn, no turn, and a left turn
 
 # EXAMPLE OUTPUT:
@@ -60,10 +60,15 @@ cost = [2, 1, 20] # cost has 3 values, corresponding to making
 def optimum_policy2D(grid,init,goal,cost):
     policy2D = [[' ' for col in range(len(grid[0]))] for row in range(len(grid))]
     
-    value = [[[99 for row in range(len(grid[0]))] for col in range(len(grid))],
-            [[99 for row in range(len(grid[0]))] for col in range(len(grid))],
-            [[99 for row in range(len(grid[0]))] for col in range(len(grid))],
-            [[99 for row in range(len(grid[0]))] for col in range(len(grid))]]
+    INIT_VAL = 999
+
+    value = [[[INIT_VAL for row in range(len(grid[0]))] for col in range(len(grid))],
+            [[INIT_VAL for row in range(len(grid[0]))] for col in range(len(grid))],
+            [[INIT_VAL for row in range(len(grid[0]))] for col in range(len(grid))],
+            [[INIT_VAL for row in range(len(grid[0]))] for col in range(len(grid))]]
+
+    for i in range(len(value)):
+        value[i][init[0]][init[1]] = 99
     
     closed = []
     opened = []
@@ -84,7 +89,7 @@ def optimum_policy2D(grid,init,goal,cost):
                 if next_col >=0 and next_col < len(grid[0]): #check col co-ordinate valid
                     if grid[next_row][next_col] == 0: #check cell occupiable
                         next_val = value[prev_dir][prev_row][prev_col] - cost[a]
-                        if value[next_dir][next_row][next_col] == 99 or next_val > value[next_dir][next_row][next_col]:
+                        if value[next_dir][next_row][next_col] == INIT_VAL or next_val > value[next_dir][next_row][next_col]:
                             value[next_dir][next_row][next_col] = next_val
                             toAdd.append(next_)
 
@@ -97,7 +102,7 @@ def optimum_policy2D(grid,init,goal,cost):
     max_dir = -1    
     for poss_dir in range(len(value)):
         goal_value = value[poss_dir][goal[0]][goal[1]]
-        if goal_value != 99 and goal_value > max_val:
+        if goal_value != INIT_VAL and goal_value > max_val:
             max_val = goal_value
             max_dir = poss_dir
             
@@ -120,9 +125,9 @@ def optimum_policy2D(grid,init,goal,cost):
     prev_prev_row = None
     prev_prev_col = None
     
-    init_reached = 0
+    init_reached = 10
     
-    while init_reached == 0: #TODO - Temporary to avoid infinite loop until goal found correctly
+    while init_reached > 0: #TODO - Temporary to avoid infinite loop until goal found correctly
         #for a in range(len(action)):
         for move in forward:
             #next_dir = (prev_dir - action[a]) % len(forward) ###TODO - This is only true if no turns....
@@ -180,7 +185,7 @@ def optimum_policy2D(grid,init,goal,cost):
         prev_col = tmp_prev_col
         prev_dir = tmp_prev_dir
         print prev_val, prev_row, prev_col, prev_dir
-        #init_reached -= 1
+        init_reached -= 1
                         
     for l in value:
         for l2 in l:
