@@ -117,16 +117,21 @@ def optimum_policy2D(grid,init,goal,cost):
     prev_dir = max_dir
     prev_row = goal[0]
     prev_col = goal[1]
+    prev_prev_row = None
+    prev_prev_col = None
     
-    init_reached = 11
+    init_reached = 0
     
-    while init_reached > 0: #TODO - Temporary to avoid infinite loop until goal found correctly
+    while init_reached == 0: #TODO - Temporary to avoid infinite loop until goal found correctly
         #for a in range(len(action)):
         for move in forward:
             #next_dir = (prev_dir - action[a]) % len(forward) ###TODO - This is only true if no turns....
             next_row = prev_row - move[0]#[(prev_dir - a) % len(action)][0]
             next_col = prev_col - move[1]#[(prev_dir - a) % len(action)][1]
             #next_ = [next_row, next_col, next_dir]
+
+            if next_row == prev_prev_row and next_col == prev_prev_col:
+                break
 
             print "ALL Next row, col", next_row, next_col
             #print next
@@ -166,14 +171,16 @@ def optimum_policy2D(grid,init,goal,cost):
                                 tmp_prev_dir = poss_dir
                             
                                 if next_row == init[0] and next_col == init[1]:
+                                    print "************   REACHED GOAL   **************"
                                     init_reached = True
-                                
+        prev_prev_row = prev_row
+        prev_prev_col = prev_col                        
         prev_val = tmp_prev_val
         prev_row = tmp_prev_row
         prev_col = tmp_prev_col
         prev_dir = tmp_prev_dir
         print prev_val, prev_row, prev_col, prev_dir
-        init_reached -= 1
+        #init_reached -= 1
                         
     for l in value:
         for l2 in l:
