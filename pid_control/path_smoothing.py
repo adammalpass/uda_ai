@@ -44,8 +44,12 @@ def smooth(path, weight_data = 0.5, weight_smooth = 0.1, tolerance = 0.000001):
 
     #Formula to use:    yi <- yi + alpha (xi - yi) + beta (yi + 1 + yi - 1 - 2 * yi)
     #print newpath
-    #newpath[i][j] += weight_data * (path[i][j] - newpath[i][j]) + weight_smooth * (newpath[i-1][j] + newpath[i+1][j] - 2.0 * newpath[i][j])
-
+    num_loops = 500
+    while num_loops > 0:
+        for i in range(1,len(newpath)-1):
+            for j in range(len(newpath[0])):
+                newpath[i][j] += weight_data * (path[i][j] - newpath[i][j]) + weight_smooth * (newpath[i-1][j] + newpath[i+1][j] - 2.0 * newpath[i][j])
+        num_loops -= 1
     return newpath # Leave this line for the grader!
 
 printpaths(path,smooth(path))
