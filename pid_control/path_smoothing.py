@@ -45,7 +45,7 @@ def smooth(path, weight_data = 0.5, weight_smooth = 0.1, tolerance = 0.000001):
     #Formula to use:    yi <- yi + alpha (xi - yi) + beta (yi + 1 + yi - 1 - 2 * yi)
     #print newpath
     num_loops = 0
-    time_out = 100
+    time_out = 1000
     converged = False
 
     while converged == False:
