@@ -533,26 +533,34 @@ def slam(data, N, num_landmarks, motion_noise, measurement_noise):
     #Set initial co-ordinates
     Omega[0][0] = 1
     Omega[1][1] = 1
-    #Omega = matrix(Omega)
     
     Xi[0][0] = world_size / 2   
     Xi[1][0] = world_size / 2
-    #Xi = matrix(Xi)
     
-    for i in [0]:#range(len(data)):
+    for i in range(len(data)):
         measured = data[i][0]
         #print measured
         for j in range(len(measured)):
-            Omega[2*i][2*i] += 1
-            Omega[2*i+1][2*i+1] += 1
-            Omega[2*i][2*N+2*measured[j][0]] -= 1
-            Omega[2*i+1][2*N+2*measured[j][0]+1] -= 1
-            Omega[2*N+2*measured[j][0]][2*i] -= 1
-            Omega[2*N+2*measured[j][0] + 1][2*i + 1] -= 1
-            Omega[2*N+2*measured[j][0]][2*N+2*measured[j][0]] += 1
-            Omega[2*N+2*measured[j][0] + 1][2*N+2*measured[j][0] + 1] += 1
+            #Update Omega
+            Omega[2*i][2*i] += 1 / measurement_noise
+            Omega[2*i+1][2*i+1] += 1 / measurement_noise
+            Omega[2*i][2*N+2*measured[j][0]] -= 1 / measurement_noise
+            Omega[2*i+1][2*N+2*measured[j][0]+1] -= 1 / measurement_noise
+            Omega[2*N+2*measured[j][0]][2*i] -= 1 / measurement_noise
+            Omega[2*N+2*measured[j][0] + 1][2*i + 1] -= 1 / measurement_noise
+            Omega[2*N+2*measured[j][0]][2*N+2*measured[j][0]] += 1 / measurement_noise
+            Omega[2*N+2*measured[j][0] + 1][2*N+2*measured[j][0] + 1] += 1 / measurement_noise
+
+            #print "measured[j]: ", measured[j]
+            #print "measured[j][1]: ", measured[j][1]
+            #Update Xi
+            Xi[2*i][0] -= measured[j][1] / measurement_noise
+            Xi[2*i + 1][0] -= measured[j][2] / measurement_noise
+            Xi[2*N+2*measured[j][0]][0] += measured[j][1] / measurement_noise
+            Xi[2*N+2*measured[j][0] + 1][0] += measured[j][2] / measurement_noise
         
     Omega = matrix(Omega)
+    Xi = matrix(Xi)
     Omega.show('Omega: ')
     Xi.show('Xi:    ')
     mu = Omega.inverse() * Xi
