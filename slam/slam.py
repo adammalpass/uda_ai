@@ -509,7 +509,7 @@ def slam(data, N, num_landmarks, motion_noise, measurement_noise):
     # Add your code here!
     #
     #
-    print data
+    #print data
     DIMENSIONS = (N+num_landmarks)*2
     
     #Omega = matrix()
@@ -538,10 +538,11 @@ def slam(data, N, num_landmarks, motion_noise, measurement_noise):
     Xi[1][0] = world_size / 2
     
     for i in range(len(data)):
+        #Sense update
         measured = data[i][0]
         #print measured
         for j in range(len(measured)):
-            #Update Omega
+            #Update Omega - Sense
             Omega[2*i][2*i] += 1 / measurement_noise
             Omega[2*i+1][2*i+1] += 1 / measurement_noise
             Omega[2*i][2*N+2*measured[j][0]] -= 1 / measurement_noise
@@ -553,11 +554,34 @@ def slam(data, N, num_landmarks, motion_noise, measurement_noise):
 
             #print "measured[j]: ", measured[j]
             #print "measured[j][1]: ", measured[j][1]
-            #Update Xi
+            #Update Xi - Sense
             Xi[2*i][0] -= measured[j][1] / measurement_noise
             Xi[2*i + 1][0] -= measured[j][2] / measurement_noise
             Xi[2*N+2*measured[j][0]][0] += measured[j][1] / measurement_noise
             Xi[2*N+2*measured[j][0] + 1][0] += measured[j][2] / measurement_noise
+
+        #Move update
+        dx = data[i][1][0]
+        dy = data[i][1][1]
+
+        #Update Omega - Move
+        #TODO
+        Omega[2*i][2*i] += 1 / motion_noise            #[x0,x0] = 1
+        Omega[2*i][2*i + 2] -= 1 / motion_noise        #[x0,x1] = -1
+        Omega[2*i + 1][2*i + 1] += 1 / motion_noise    #[y0,y0] = 1
+        Omega[2*i + 1][2*i + 3] -= 1 / motion_noise    #[y0,y1] = -1
+
+        Omega[2*i + 2][2*i] -= 1 / motion_noise        #[x1,x0] = -1
+        Omega[2*i + 2][2*i + 2] += 1 / motion_noise    #[x1,x1] = 1
+        Omega[2*i + 3][2*i + 1] -= 1 / motion_noise    #[y1,y0] = -1
+        Omega[2*i + 3][2*i + 3] += 1 / motion_noise    #[y0,y1] = 1
+
+        #Update Xi - Move
+        Xi[2*i][0] -= dx / motion_noise
+        Xi[2*i + 1][0] -= dy / motion_noise
+        Xi[2*i + 2][0] += dx / motion_noise
+        Xi[2*i + 3][0] += dy / motion_noise
+
         
     Omega = matrix(Omega)
     Xi = matrix(Xi)
