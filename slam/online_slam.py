@@ -567,10 +567,10 @@ def online_slam(data, N, num_landmarks, motion_noise, measurement_noise):
     #
     #
 
-    # Set the dimension of the filter
+    ##################### Set the dimension of the filter#############################################
     dim = 2 * (1 + num_landmarks) 
 
-    # make the constraint information matrix and vector and set initial condition
+    ########### make the constraint information matrix and vector and set initial condition ##########
     Omega = matrix()
     Omega.zero(dim, dim)
     Omega.value[0][0] = 1.0
@@ -581,30 +581,44 @@ def online_slam(data, N, num_landmarks, motion_noise, measurement_noise):
     Xi.value[0][0] = world_size / 2.0
     Xi.value[1][0] = world_size / 2.0
 
-    #calculate slam matrix for measurements from first point and first motion as in normal slam
+    ##############################   calculate slam matrix for measurements from first point ##############
+    ##############################   and first motion as in normal slam ####################################
+    
 
 
-    #use expand() to add new row of all zeroes at pos 1, and new col of all zeroes at pos 1
+
+
+    #dim = 6
+    #Omega = matrix([[99,01,02,03,04,05],
+    #    [10,11,12,13,14,15],
+    #    [20,21,22,23,24,25],
+    #    [30,31,32,33,34,35],
+    #    [40,41,42,43,44,45],
+    #    [50,51,52,53,54,55]])
+
+    #Xi = matrix([[9],[1],[2],[3],[4],[5]])
+
+    ############## use expand() to add new row of all zeroes at pos 1 ####################################
+    ############## and new col of all zeroes at pos 1 ####################################################
+    new_indexes = range(0,dim+2)
+    new_indexes.remove(2)
+    new_indexes.remove(3)
+    #print new_indexes 
+    Omega = Omega.expand(dim+2, dim+2, new_indexes, new_indexes)
+    Xi = Xi.expand(dim+2, 1, new_indexes, [0])
+
+    #print "Testing expand()"
+    #Omega.show()
+    #Xi.show()
 
 
     #use take() to extract A, B, C, Omega_p and Xi_p
-    #Omega = matrix([[99,01,02,03,04,05,06],
-    #    [10,11,12,13,14,15,16],
-    #    [20,21,22,23,24,25,26],
-    #    [30,31,32,33,34,35,36],
-    #    [40,41,42,43,44,45,46],
-    #    [50,51,52,53,54,55,56],
-    #    [60,61,62,63,64,65,66]])
+    A = Omega.take([0,1],range(4, dim+2))
+    B = Omega.take([0,1],[0,1])
+    Omega_p = Omega.take(range(4, dim+2),range(4, dim+2))
 
-    #Xi = matrix([[0],[1],[2],[3],[4],[5],[6]])
-
-
-    A = Omega.take([0],range(1, 2 + num_landmarks))
-    B = Omega.take([0],[0])
-    Omega_p = Omega.take(range(1, 2 + num_landmarks),range(1, 2 + num_landmarks))
-
-    C = Xi.take([0],[0])
-    Xi_p = Xi.take(range(1, 2 + num_landmarks),[0])
+    C = Xi.take([0,1],[0])
+    Xi_p = Xi.take(range(4, dim+2),[0])
 
     #Omega.show()
     #Xi.show()
