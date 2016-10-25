@@ -584,57 +584,114 @@ def online_slam(data, N, num_landmarks, motion_noise, measurement_noise):
     ##############################   calculate slam matrix for measurements from first point ##############
     ##############################   and first motion as in normal slam ####################################
     
+    # process the data
+
+    for k in range(len(data)):
+
+        # n is the index of the robot pose in the matrix/vector
+        #n = k * 2 
+        n = 0
+        print "k = ", k, " out of ", len(data) 
+    
+        measurement = data[k][0]
+        motion      = data[k][1]
+    
+        # integrate the measurements
+        for i in range(len(measurement)):
+    
+            # m is the index of the landmark coordinate in the matrix/vector
+            #m = 2 * (N + measurement[i][0])
+            m = 2 * (1 + measurement[i][0])
+    
+            # update the information maxtrix/vector based on the measurement
+            for b in range(2):
+                Omega.value[n+b][n+b] +=  1.0 / measurement_noise
+                Omega.value[m+b][m+b] +=  1.0 / measurement_noise
+                Omega.value[n+b][m+b] += -1.0 / measurement_noise
+                Omega.value[m+b][n+b] += -1.0 / measurement_noise
+                Xi.value[n+b][0]      += -measurement[i][1+b] / measurement_noise
+                Xi.value[m+b][0]      +=  measurement[i][1+b] / measurement_noise
+
+
+        # update the information maxtrix/vector based on the robot motion
+        for b in range(4):
+            Omega.value[n+b][n+b] +=  1.0 / motion_noise
+        for b in range(2):
+            Omega.value[n+b  ][n+b+2] += -1.0 / motion_noise
+            Omega.value[n+b+2][n+b  ] += -1.0 / motion_noise
+            Xi.value[n+b  ][0]        += -motion[b] / motion_noise
+            Xi.value[n+b+2][0]        +=  motion[b] / motion_noise
 
 
 
 
-    #dim = 6
-    #Omega = matrix([[99,01,02,03,04,05],
-    #    [10,11,12,13,14,15],
-    #    [20,21,22,23,24,25],
-    #    [30,31,32,33,34,35],
-    #    [40,41,42,43,44,45],
-    #    [50,51,52,53,54,55]])
+        #dim = 6
+        #Omega = matrix([[99,01,02,03,04,05],
+        #    [10,11,12,13,14,15],
+        #    [20,21,22,23,24,25],
+        #    [30,31,32,33,34,35],
+        #    [40,41,42,43,44,45],
+        #    [50,51,52,53,54,55]])
 
-    #Xi = matrix([[9],[1],[2],[3],[4],[5]])
+        #Xi = matrix([[9],[1],[2],[3],[4],[5]])
 
-    ############## use expand() to add new row of all zeroes at pos 1 ####################################
-    ############## and new col of all zeroes at pos 1 ####################################################
-    new_indexes = range(0,dim+2)
-    new_indexes.remove(2)
-    new_indexes.remove(3)
-    #print new_indexes 
-    Omega = Omega.expand(dim+2, dim+2, new_indexes, new_indexes)
-    Xi = Xi.expand(dim+2, 1, new_indexes, [0])
+        if k < len(data) - 1:
+            ############## use expand() to add new row of all zeroes at pos 1 ####################################
+            ############## and new col of all zeroes at pos 1 ####################################################
+            new_indexes = range(0,dim+2)
+            new_indexes.remove(2)
+            new_indexes.remove(3)
+            #print new_indexes 
+            Omega = Omega.expand(dim+2, dim+2, new_indexes, new_indexes)
+            Xi = Xi.expand(dim+2, 1, new_indexes, [0])
 
-    #print "Testing expand()"
-    #Omega.show()
-    #Xi.show()
-
-
-    #use take() to extract A, B, C, Omega_p and Xi_p
-    A = Omega.take([0,1],range(4, dim+2))
-    B = Omega.take([0,1],[0,1])
-    Omega_p = Omega.take(range(4, dim+2),range(4, dim+2))
-
-    C = Xi.take([0,1],[0])
-    Xi_p = Xi.take(range(4, dim+2),[0])
-
-    #Omega.show()
-    #Xi.show()
-    #A.show()
-    #B.show()
-    #Omega_p.show()
-    #C.show()
-    #Xi_p.show()
+            #print "Testing expand()"
+            #Omega.show()
+            #Xi.show()
 
 
-    #Calculate new Omega and Xi
-    Omega = Omega_p - A.transpose() * B.inverse() * A
-    Xi = Xi_p - A.transpose() * B.inverse() * C
+            #use take() to extract A, B, C, Omega_p and Xi_p
+            A = Omega.take([0,1],range(2, dim+2))
+            B = Omega.take([0,1],[0,1])
+            Omega_p = Omega.take(range(2, dim+2),range(2, dim+2))
+
+            C = Xi.take([0,1],[0])
+            Xi_p = Xi.take(range(2, dim+2),[0])
+
+            print "Omega"
+            Omega.show()
+            print "Xi"
+            Xi.show()
+            print "A"
+            A.show()
+            print "B"
+            B.show()
+            print "Omega_p"
+            Omega_p.show()
+            print "C"
+            C.show()
+            print "Xi_p"
+            Xi_p.show()
+
+
+            #Calculate new Omega and Xi
+            Omega = Omega_p - A.transpose() * B.inverse() * A
+            Xi = Xi_p - A.transpose() * B.inverse() * C
+
+            print "New Omega"
+            Omega.show()
+            print "New Xi"
+            Xi.show()
 
     # compute best estimate
     mu = Omega.inverse() * Xi
+
+    print "Final Omega"
+    Omega.show()
+    print "Final Xi"
+    Xi.show()
+    print "Final mu"
+    mu.show()
 
     return mu, Omega # make sure you return both of these matrices to be marked correct.
 
@@ -677,9 +734,9 @@ distance           = 20.0     # distance by which robot (intends to) move each i
 
 # Uncomment the following three lines to run the online_slam routine.
 
-data = make_data(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
-result = online_slam(data, N, num_landmarks, motion_noise, measurement_noise)
-print_result(1, num_landmarks, result[0])
+#data = make_data(N, num_landmarks, world_size, measurement_range, motion_noise, measurement_noise, distance)
+#result = online_slam(data, N, num_landmarks, motion_noise, measurement_noise)
+#print_result(1, num_landmarks, result[0])
 
 ##########################################################
 
@@ -755,8 +812,8 @@ answer_omega1      = matrix([[0.36603773584905663, 0.0, -0.169811320754717, 0.0,
                              [-0.1811320754716981, 0.0, -0.4056603773584906, 0.0, -0.360377358490566, 0.0, 1.2339622641509433, 0.0],
                              [0.0, -0.1811320754716981, 0.0, -0.4056603773584906, 0.0, -0.360377358490566, 0.0, 1.2339622641509433]])
 
-#result = online_slam(testdata1, 5, 3, 2.0, 2.0)
-#solution_check(result, answer_mu1, answer_omega1)
+result = online_slam(testdata1, 5, 3, 2.0, 2.0)
+solution_check(result, answer_mu1, answer_omega1)
 
 
 # -----------
