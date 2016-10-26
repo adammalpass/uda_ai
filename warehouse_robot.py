@@ -136,16 +136,20 @@ def plan(warehouse, dropzone, todo):
                 if row >= 0 and row < len(warehouse):           #check range of row
                     if col >= 0 and col < len(warehouse[0]):    #check range of col
                         if warehouse[row][col] == 0:            #check cell is navigatable
-                            if [row,closed] not in closed:      #check cell has not already been investigated
+                            #if [row,col] not in closed:        #check cell has not already been investigated
+                            
                                 #print [row,col]
-                                opened.append([row,col])        #add location to opened to be investigated
                                 
-                                #update score
-                                if drow == 0 or dcol == 0:
-                                    new_score = prev_score + STRAIGHT_COST
-                                else:
-                                    new_score = prev_score + DIAGONAL_COST
+                                
+                            #update score
+                            if drow == 0 or dcol == 0:
+                                new_score = prev_score + STRAIGHT_COST
+                            else:
+                                new_score = prev_score + DIAGONAL_COST
+
+                            if new_score < values[row][col]:    #check score is the best yet found for that cell 
                                 values[row][col] = new_score
+                                opened.append([row,col])        #add location to opened to be investigated
 
     print "Opened", opened
     print "Values"
