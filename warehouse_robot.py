@@ -76,15 +76,32 @@ todo = [2, 1]
 # modify code below
 # ----------------------------------------
 def plan(warehouse, dropzone, todo):
-  # 1) Write plan that calculates cost 'n' to go from dropzone to todo[0]
+  # 1) Write code that determines coordinates (x,y) of box mentioned in todo[0]
+  # 2) Write plan that calculates cost 'n' to go from dropzone to (x,y)
   #       - only cells with '0' should be passable, all numbers indicate boxes and are not passable
-  # 2) Set the value of that cell in warehouse to '0' so it becomes passable
-  # 3) Remove that item from todo -> "todo = [1:]"
-  # 4) Increment total cost -> total_cost += 2*n (since cost is there and back)
-  # 5) Loop from 1) to 4) until len(todo) = 0
-  # 6) return cost
+  # 3) Set the value of that cell in warehouse to '0' so it becomes passable
+  # 4) Remove that item from todo -> "todo = [1:]"
+  # 5) Increment total cost -> total_cost += 2*n (since cost is there and back)
+  # 6) Loop from 1) to 4) until len(todo) = 0
+  # 7) return cost
 
-  
+###############      determine coordinates (x,y) of box mentioned in todo[0] #########################
+    print "Warehouse"
+    for l in warehouse:
+        print l
+
+    print "Dropzone", dropzone
+    print "todo", todo
+
+    goal = [0,0]
+
+    for row in range(len(warehouse)):
+        for col in range(len(warehouse[0])):
+            if warehouse[row][col] == todo[0]:
+                goal = [row,col]
+                break
+
+    print "Goal", goal
     
     return cost
     
@@ -164,4 +181,4 @@ testing_suite = [[warehouse1, warehouse2, warehouse3, warehouse4],
                  [true_cost1, true_cost2, true_cost3, true_cost4]]
 
 
-#solution_check(testing_suite) #UNCOMMENT THIS LINE TO TEST YOUR CODE
+solution_check(testing_suite) #UNCOMMENT THIS LINE TO TEST YOUR CODE
