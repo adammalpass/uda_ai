@@ -75,12 +75,35 @@ todo = [2, 1]
 # ----------------------------------------
 # modify code below
 # ----------------------------------------
+
 def plan(warehouse, dropzone, todo):
+    cost = 0
+
+    while len(todo) > 0:
+        #determine next goal location
+        for row in range(len(warehouse)):
+            for col in range(len(warehouse[0])):
+                if warehouse[row][col] == todo[0]:
+                    goal = [row,col]
+                    break
+
+        print "Goal", goal
+
+        #set goal square as `0` so search algorithm will look for it
+        warehouse[goal[0]][goal[1]] = 0
+
+        cost += 2* score(warehouse, dropzone, goal)
+        todo = todo[1:]
+
+    return cost
+
+
+def score(warehouse, dropzone, goal):
   # 1) Write code that determines coordinates (x,y) of box mentioned in todo[0]
   # 2) Write plan that calculates cost 'n' to go from dropzone to (x,y)
   #       - only cells with '0' should be passable, all numbers indicate boxes and are not passable
   # 3) Set the value of that cell in warehouse to '0' so it becomes passable
-  # 4) Remove that item from todo -> "todo = [1:]"
+  # 4) Remove that item from todo -> "todo = todo[1:]"
   # 5) Increment total cost -> total_cost += 2*n (since cost is there and back)
   # 6) Loop from 1) to 4) until len(todo) = 0
   # 7) return cost
@@ -95,15 +118,7 @@ def plan(warehouse, dropzone, todo):
         print l
 
     print "Dropzone", dropzone
-    print "todo", todo
-
-    for row in range(len(warehouse)):
-        for col in range(len(warehouse[0])):
-            if warehouse[row][col] == todo[0]:
-                goal = [row,col]
-                break
-
-    print "Goal", goal
+    #print "todo", todo
 
     #initialise vector of locations to investigate
     opened = []
@@ -116,9 +131,6 @@ def plan(warehouse, dropzone, todo):
     values = [[99 for col in range(len(warehouse[0]))] for row in range(len(warehouse))]
     #initialise starting location (dropzone) to 0
     values[dropzone[0]][dropzone[1]] = 0
-
-    #set goal square as `0` so search algorithm will look for it
-    warehouse[goal[0]][goal[1]] = 0
 
     print "Values"
     for l in values:
@@ -154,8 +166,8 @@ def plan(warehouse, dropzone, todo):
                                     values[row][col] = new_score
                                     opened.append([row,col])        #add location to opened to be investigated
 
-    goal_cost = values[goal[0]][goal[1]]
-    print "Goal cost: ", goal_cost
+    cost = values[goal[0]][goal[1]]
+    print "Goal cost: ", cost
 
     #print "Opened", opened
     print "Values"
