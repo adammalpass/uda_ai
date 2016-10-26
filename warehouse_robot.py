@@ -93,8 +93,6 @@ def plan(warehouse, dropzone, todo):
     print "Dropzone", dropzone
     print "todo", todo
 
-    goal = [0,0]
-
     for row in range(len(warehouse)):
         for col in range(len(warehouse[0])):
             if warehouse[row][col] == todo[0]:
@@ -102,6 +100,44 @@ def plan(warehouse, dropzone, todo):
                 break
 
     print "Goal", goal
+
+    #initialise vector of locations to investigate
+    opened = []
+    opened.append(dropzone)
+
+    #vector of investigated locations
+    closed = []
+
+    #vector of values
+    values = [[99 for col in range(len(warehouse[0]))] for row in range(len(warehouse))]
+    #initialise starting location (dropzone) to 0
+    values[dropzone[0]][dropzone[1]] = 0
+
+    print "Values"
+    for l in values:
+        print l
+
+
+
+
+    closed.append(opened.pop())
+
+    for drow in [-1,0,1]:
+        for dcol in [-1,0,1]:
+            row = closed[-1][0] + drow #create new candidate
+            col = closed[-1][1] + dcol
+
+            if not (drow == 0 and dcol == 0):                   #exclude case where no change in row or col
+                if row >= 0 and row < len(warehouse):           #check range of row
+                    if col >= 0 and col < len(warehouse[0]):    #check range of col
+                        if warehouse[row][col] == 0:            #check cell is navigatable
+                            if [row,closed] not in closed:      #check cell has not already been investigated
+                                #print [row,col]
+                                opened.append([row,col])        #add location to opened to be investigated
+
+    print "Opened", opened
+
+
     
     return cost
     
