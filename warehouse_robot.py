@@ -117,45 +117,50 @@ def plan(warehouse, dropzone, todo):
     #initialise starting location (dropzone) to 0
     values[dropzone[0]][dropzone[1]] = 0
 
+    #set goal square as `0` so search algorithm will look for it
+    warehouse[goal[0]][goal[1]] = 0
+
     print "Values"
     for l in values:
         print l
 
 
+    while len(opened) > 0:
 
+        closed.append(opened.pop())
+        prev_score = values[closed[-1][0]][closed[-1][1]]
 
-    closed.append(opened.pop())
-    prev_score = values[closed[-1][0]][closed[-1][1]]
+        for drow in [-1,0,1]:
+            for dcol in [-1,0,1]:
+                row = closed[-1][0] + drow #create new candidate
+                col = closed[-1][1] + dcol
 
-    for drow in [-1,0,1]:
-        for dcol in [-1,0,1]:
-            row = closed[-1][0] + drow #create new candidate
-            col = closed[-1][1] + dcol
-
-            if not (drow == 0 and dcol == 0):                   #exclude case where no change in row or col
-                if row >= 0 and row < len(warehouse):           #check range of row
-                    if col >= 0 and col < len(warehouse[0]):    #check range of col
-                        if warehouse[row][col] == 0:            #check cell is navigatable
-                            #if [row,col] not in closed:        #check cell has not already been investigated
-                            
-                                #print [row,col]
+                if not (drow == 0 and dcol == 0):                   #exclude case where no change in row or col
+                    if row >= 0 and row < len(warehouse):           #check range of row
+                        if col >= 0 and col < len(warehouse[0]):    #check range of col
+                            if warehouse[row][col] == 0:            #check cell is navigatable
+                                #if [row,col] not in closed:        #check cell has not already been investigated
                                 
-                                
-                            #update score
-                            if drow == 0 or dcol == 0:
-                                new_score = prev_score + STRAIGHT_COST
-                            else:
-                                new_score = prev_score + DIAGONAL_COST
+                                    #print [row,col]
+                                    
+                                    
+                                #update score
+                                if drow == 0 or dcol == 0:
+                                    new_score = prev_score + STRAIGHT_COST
+                                else:
+                                    new_score = prev_score + DIAGONAL_COST
 
-                            if new_score < values[row][col]:    #check score is the best yet found for that cell 
-                                values[row][col] = new_score
-                                opened.append([row,col])        #add location to opened to be investigated
+                                if new_score < values[row][col]:    #check score is the best yet found for that cell 
+                                    values[row][col] = new_score
+                                    opened.append([row,col])        #add location to opened to be investigated
 
-    print "Opened", opened
+    goal_cost = values[goal[0]][goal[1]]
+    print "Goal cost: ", goal_cost
+
+    #print "Opened", opened
     print "Values"
     for l in values:
         print l
-
 
     
     return cost
