@@ -86,6 +86,10 @@ def plan(warehouse, dropzone, todo):
   # 7) return cost
 
 ###############      determine coordinates (x,y) of box mentioned in todo[0] #########################
+    
+    DIAGONAL_COST = 1.5
+    STRAIGHT_COST = 1
+
     print "Warehouse"
     for l in warehouse:
         print l
@@ -121,6 +125,7 @@ def plan(warehouse, dropzone, todo):
 
 
     closed.append(opened.pop())
+    prev_score = values[closed[-1][0]][closed[-1][1]]
 
     for drow in [-1,0,1]:
         for dcol in [-1,0,1]:
@@ -134,8 +139,18 @@ def plan(warehouse, dropzone, todo):
                             if [row,closed] not in closed:      #check cell has not already been investigated
                                 #print [row,col]
                                 opened.append([row,col])        #add location to opened to be investigated
+                                
+                                #update score
+                                if drow == 0 or dcol == 0:
+                                    new_score = prev_score + STRAIGHT_COST
+                                else:
+                                    new_score = prev_score + DIAGONAL_COST
+                                values[row][col] = new_score
 
     print "Opened", opened
+    print "Values"
+    for l in values:
+        print l
 
 
     
