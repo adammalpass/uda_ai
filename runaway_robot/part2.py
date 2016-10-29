@@ -44,28 +44,36 @@ def estimate_next_pos(measurement, OTHER = None):
     if OTHER is None:
         xy_estimate = measurement
         angle = 0
-        num_measurements = 1
+        num_measurements = 0
+        total_step = 0
 
         
     else:
         prev_num_measurements = OTHER[0]
         prev_measurement = OTHER[1]
         prev_angle = OTHER[2]
+        total_step = OTHER[3]
 
         num_measurements = prev_num_measurements + 1
 
         step_size = distance_between(measurement, prev_measurement)
+        total_step += step_size
+        average_step = total_step / num_measurements
+
+
         angle = atan2(measurement[1]-prev_measurement[1],measurement[0]-prev_measurement[0])
         new_angle = angle * 2 - prev_angle
         print angle
 
-        x_estimate = measurement[0]+ step_size*cos(new_angle)
-        y_estimate = measurement[1]+ step_size*sin(new_angle)
+        x_estimate = measurement[0]+ average_step*cos(new_angle)
+        y_estimate = measurement[1]+ average_step*sin(new_angle)
+        #x_estimate = measurement[0]+ step_size*cos(new_angle)
+        #y_estimate = measurement[1]+ step_size*sin(new_angle)
         xy_estimate = (x_estimate,y_estimate)
 
 
         
-    OTHER = [num_measurements, measurement, angle]
+    OTHER = [num_measurements, measurement, angle, total_step]
     #print "OTHER", OTHER
 
     # You must return xy_estimate (x, y), and OTHER (even if it is None) 
@@ -177,7 +185,7 @@ test_target = robot(2.1, 4.3, 0.5, 2*pi / 34.0, 1.5)
 measurement_noise = 0.05 * test_target.distance
 test_target.set_noise(0.0, 0.0, measurement_noise)
 
-#demo_grading(estimate_next_pos, test_target)
-demo_grading_visual(estimate_next_pos, test_target)
+demo_grading(estimate_next_pos, test_target)
+#demo_grading_visual(estimate_next_pos, test_target)
 
 
