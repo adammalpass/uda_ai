@@ -73,46 +73,25 @@ def estimate_next_pos(measurement, OTHER = None):
     
     if OTHER is None:
         xy_estimate = measurement
+        angle = 0
+
         
-        step_size_est = distance_between(xy_estimate, [0,0])
-        print "Step_size_est", step_size_est
-        
-        heading_est = atan2(xy_estimate[1], xy_estimate[0])
-        print "heading_est", heading_est
     else:
-        print "Measurement", measurement
-        err = distance_between(measurement, OTHER[0])
+        prev_measurement = OTHER[0]
+        prev_angle = OTHER[1]
 
-        #step_size_est = distance_between(measurement, OTHER[0])
-        step_size_est = distance_between(measurement, OTHER[3])
-        print "Step_size_est", step_size_est
-        
-        #heading_est = (OTHER[2] + atan2(measurement[1] - OTHER[3][1], measurement[0] - OTHER[3][0])) / 2
-        #heading_est = atan2(OTHER[0][1] - OTHER[3][1], OTHER[0][0] - OTHER[3][0])
-        #heading_est = atan2(measurement[1], measurement[0])
+        step_size = distance_between(measurement, prev_measurement)
+        angle = atan2(measurement[1]-prev_measurement[1],measurement[0]-prev_measurement[0])
+        new_angle = angle * 2 - prev_angle
+        print angle
 
-        ###heading_est = atan2(measurement[1] - OTHER[3][1], measurement[0] - OTHER[3][0])
-        heading_est = (atan2(measurement[1] - OTHER[3][1], measurement[0] - OTHER[3][0]))# * (1+0.3*err))%(2*pi)
-        #    atan2(measurement[1] - OTHER[0][1], measurement[0] - OTHER[0][0])) / 2
+        x_estimate = measurement[0]+ step_size*cos(new_angle)
+        y_estimate = measurement[1]+ step_size*sin(new_angle)
+        xy_estimate = (x_estimate,y_estimate)
 
-        print "heading_est", heading_est
-        
-        #turn_est = heading_est - OTHER[2]
-        #print "turn_est", turn_est
-
-        #next_heading_est = (heading_est + turn_est)%(2*pi)
-        #print "next heading", next_heading_est
-        
-        #x_est = measurement[0] + OTHER[1]*cos(OTHER[2])
-        #y_est = measurement[1] + OTHER[1]*sin(OTHER[2])
-        x_est = measurement[0] + step_size_est*cos(heading_est)
-        y_est = measurement[1] + step_size_est*sin(heading_est)
-        #x_est = OTHER[0][0] + 2 * step_size_est*cos(heading_est)
-        #y_est = OTHER[0][1] + 2 * step_size_est*sin(heading_est)
-        xy_estimate = (x_est, y_est)
 
         
-    OTHER = [xy_estimate, step_size_est, heading_est, measurement]
+    OTHER = [measurement, angle]
     #print "OTHER", OTHER
     
     # You must return xy_estimate (x, y), and OTHER (even if it is None) 
@@ -139,16 +118,16 @@ def demo_grading(estimate_next_pos_fcn, target_bot, OTHER = None):
     while not localized and ctr <= 10: 
         ctr += 1
         measurement = target_bot.sense()
-        print "Measurement", measurement
+        #print "Measurement", measurement
         position_guess, OTHER = estimate_next_pos_fcn(measurement, OTHER)
-        print "Position guess", position_guess
-        print "OTHER", OTHER
+        #print "Position guess", position_guess
+        #print "OTHER", OTHER
         target_bot.move_in_circle()
         true_position = (target_bot.x, target_bot.y)
-        print "True pos", true_position
+        #print "True pos", true_position
         error = distance_between(position_guess, true_position)
-        print "Error: ", error
-        print ""
+        #print "Error: ", error
+        #print ""
         
         if error <= distance_tolerance:
             print "You got it right! It took you ", ctr, " steps to localize."
@@ -174,7 +153,7 @@ test_target.set_noise(0.0, 0.0, 0.0)
 
 def demo_grading_visual(estimate_next_pos_fcn, target_bot, OTHER = None):
     localized = False
-    distance_tolerance = 0.01 * target_bot.distance
+    distance_tolerance = 0.001 * target_bot.distance
     ctr = 0
     # if you haven't localized the target bot, make a guess about the next
     # position, then we move the bot and compare your guess to the true
@@ -204,7 +183,7 @@ def demo_grading_visual(estimate_next_pos_fcn, target_bot, OTHER = None):
     measured_broken_robot.penup()
 
     #End of Visualization
-    while not localized and ctr <= 100:
+    while not localized and ctr <= 10:
         ctr += 1
         raw_input()
         measurement = target_bot.sense()
@@ -231,5 +210,5 @@ def demo_grading_visual(estimate_next_pos_fcn, target_bot, OTHER = None):
     return localized
 
 #demo_grading(naive_next_pos, test_target)
-demo_grading(estimate_next_pos, test_target)
-#demo_grading_visual(estimate_next_pos, test_target)
+#demo_grading(estimate_next_pos, test_target)
+demo_grading_visual(estimate_next_pos, test_target)
