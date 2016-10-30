@@ -44,6 +44,67 @@ def next_move(hunter_position, hunter_heading, target_measurement, max_distance,
     # The OTHER variable is a place for you to store any historical information about
     # the progress of the hunt (or maybe some localization information). Your return format
     # must be as follows in order to be graded properly.
+
+    if OTHER is None:
+        xy_estimate = target_measurement
+        angle = 0
+        num_measurements = 0
+        total_step = 0
+        total_angle_step = 0
+        turning = atan2(xy_estimate[1] - hunter_position[1], xy_estimate[0] - hunter_position[0])
+        current_turning = turning
+        distance = distance_between(hunter_position, xy_estimate)
+
+        
+    else:
+        prev_num_measurements = OTHER[0]
+        prev_target_measurement = OTHER[1]
+        prev_angle = OTHER[2]
+        total_step = OTHER[3]
+        total_angle_step = OTHER[4]
+        prev_turning = OTHER[5]
+
+        num_measurements = prev_num_measurements + 1
+
+        step_size = distance_between(target_measurement, prev_target_measurement)
+        total_step += step_size
+        average_step = total_step / num_measurements
+
+
+        angle = atan2(target_measurement[1]-prev_target_measurement[1],target_measurement[0]-prev_target_measurement[0])
+        angle_step = angle - prev_angle
+        #print "Angle step", angle_step, (angle_step%(2*pi)), angle_trunc(angle_step)
+        
+        total_angle_step += angle_trunc(angle_step)
+        average_angle_step = total_angle_step / num_measurements
+
+        new_angle = angle + average_angle_step
+
+        #calculate estimate for next position
+        x_estimate = target_measurement[0]+ average_step*cos(new_angle)
+        y_estimate = target_measurement[1]+ average_step*sin(new_angle)
+        xy_estimate = (x_estimate,y_estimate)
+
+        ################# calculate hunter movement ############################
+
+        distance = distance_between(hunter_position, xy_estimate)
+        #current_turning = atan2(y_estimate - hunter_position[1], x_estimate - hunter_position[0])
+        
+        #turning = current_turning - prev_turning
+
+        heading_to_target = get_heading(hunter_position, target_measurement)
+        turning = heading_to_target - hunter_heading
+
+        if distance > max_distance:
+            distance = max_distance
+
+        #print "distance, turning", distance, turning
+
+
+        
+    OTHER = [num_measurements, target_measurement, angle, total_step, total_angle_step, turning]
+
+
     return turning, distance, OTHER
 
 def distance_between(point1, point2):
@@ -91,7 +152,7 @@ def demo_grading(hunter_bot, target_bot, next_move_fcn, OTHER = None):
         ctr += 1            
         if ctr >= 1000:
             print "It took too many steps to catch the target."
-    return caught
+    return caught, ctr
 
 def demo_grading_visual(hunter_bot, target_bot, next_move_fcn, OTHER = None):
     """Returns True if your next_move_fcn successfully guides the hunter_bot
@@ -214,9 +275,26 @@ target.set_noise(0.0, 0.0, measurement_noise)
 
 hunter = robot(-10.0, -10.0, 0.0)
 
-#print demo_grading(hunter, target, naive_next_move)
-print demo_grading_visual(hunter, target, naive_next_move)
+#print demo_grading(hunter, target, next_move)
+#print demo_grading_visual(hunter, target, next_move)
 
+number_runs = 1000
+total_ctr = 0
+penalty = 1500
+total_fails = 0
+
+for i in range(number_runs):
+    completed, ctr = demo_grading(hunter, target, next_move)
+    if completed:
+        total_ctr += ctr
+    else:
+        total_ctr += penalty
+        total_fails += 1
+
+average_ctr = total_ctr / number_runs
+
+print "Average_ctr: ", average_ctr
+print "Total Fails: ", total_fails
 
 
 
