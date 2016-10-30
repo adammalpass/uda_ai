@@ -46,6 +46,7 @@ def estimate_next_pos(measurement, OTHER = None):
         angle = 0
         num_measurements = 0
         total_step = 0
+        total_angle_step = 0
 
         
     else:
@@ -53,6 +54,7 @@ def estimate_next_pos(measurement, OTHER = None):
         prev_measurement = OTHER[1]
         prev_angle = OTHER[2]
         total_step = OTHER[3]
+        total_angle_step = OTHER[4]
 
         num_measurements = prev_num_measurements + 1
 
@@ -62,8 +64,16 @@ def estimate_next_pos(measurement, OTHER = None):
 
 
         angle = atan2(measurement[1]-prev_measurement[1],measurement[0]-prev_measurement[0])
-        new_angle = angle * 2 - prev_angle
-        print angle
+        angle_step = angle - prev_angle
+        print "Angle step", angle_step, (angle_step%(2*pi)), angle_trunc(angle_step)
+        
+        total_angle_step += angle_trunc(angle_step)
+        #total_angle_step += abs(angle_step) / 2
+        average_angle_step = total_angle_step / num_measurements
+
+        #new_angle = angle * 2 - prev_angle
+        new_angle = angle + average_angle_step
+        #print "Average angle step", average_angle_step
 
         x_estimate = measurement[0]+ average_step*cos(new_angle)
         y_estimate = measurement[1]+ average_step*sin(new_angle)
@@ -73,7 +83,7 @@ def estimate_next_pos(measurement, OTHER = None):
 
 
         
-    OTHER = [num_measurements, measurement, angle, total_step]
+    OTHER = [num_measurements, measurement, angle, total_step, total_angle_step]
     #print "OTHER", OTHER
 
     # You must return xy_estimate (x, y), and OTHER (even if it is None) 
@@ -110,7 +120,7 @@ def demo_grading(estimate_next_pos_fcn, target_bot, OTHER = None):
             localized = True
         if ctr == 1000:
             print "Sorry, it took you too many steps to localize the target."
-    return localized
+    return localized, ctr
 
 # This is a demo for what a strategy could look like. This one isn't very good.
 def naive_next_pos(measurement, OTHER = None):
@@ -185,7 +195,26 @@ test_target = robot(2.1, 4.3, 0.5, 2*pi / 34.0, 1.5)
 measurement_noise = 0.05 * test_target.distance
 test_target.set_noise(0.0, 0.0, measurement_noise)
 
-demo_grading(estimate_next_pos, test_target)
+#demo_grading(estimate_next_pos, test_target)
 #demo_grading_visual(estimate_next_pos, test_target)
+
+number_runs = 1000
+total_ctr = 0
+penalty = 1500
+total_fails = 0
+
+for i in range(number_runs):
+    completed, ctr = demo_grading(estimate_next_pos, test_target)
+    if completed:
+        total_ctr += ctr
+    else:
+        total_ctr += penalty
+        total_fails += 1
+
+average_ctr = total_ctr / number_runs
+
+print "Average_ctr: ", average_ctr
+print "Total Fails: ", total_fails
+
 
 
