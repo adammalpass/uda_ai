@@ -85,14 +85,39 @@ def next_move(hunter_position, hunter_heading, target_measurement, max_distance,
         y_estimate = target_measurement[1]+ average_step*sin(new_angle)
         xy_estimate = (x_estimate,y_estimate)
 
+        ############## estimate next n positions ##############################
+        next_positions = [xy_estimate]
+
+        next_n = 15
+        prev_n_angle = new_angle
+
+        min_distance_to_hunter = 9999999999999
+        min_position = None
+
+        for n in range(1,next_n):
+            prev_n_angle += average_angle_step
+            nx_estimate = next_positions[n-1][0]+ average_step*cos(prev_n_angle)
+            ny_estimate = next_positions[n-1][1]+ average_step*sin(prev_n_angle)
+            next_positions.append((nx_estimate,ny_estimate))
+
+            distance = distance_between(hunter_position, xy_estimate)
+
+            if distance < min_distance_to_hunter:
+                min_distance_to_hunter = distance
+                min_position = n
+
+
+
+
         ################# calculate hunter movement ############################
 
-        distance = distance_between(hunter_position, xy_estimate)
+        distance = min_distance_to_hunter
+        #distance = distance_between(hunter_position, xy_estimate)
         #current_turning = atan2(y_estimate - hunter_position[1], x_estimate - hunter_position[0])
         
         #turning = current_turning - prev_turning
-
-        heading_to_target = get_heading(hunter_position, target_measurement)
+        heading_to_target = get_heading(hunter_position, next_positions[min_position])
+        #heading_to_target = get_heading(hunter_position, target_measurement)
         turning = heading_to_target - hunter_heading
 
         if distance > max_distance:
