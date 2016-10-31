@@ -111,7 +111,7 @@ def next_move(hunter_position, hunter_heading, target_measurement, max_distance,
 
                 distance = distance_between(hunter_position, [nx_estimate,ny_estimate])# / (1+0.5*n)
 
-                if distance < n*max_distance:
+                if distance < (n+1)*max_distance:
                     min_distance_to_hunter = distance
                     min_position = n
                     reachable = True
@@ -318,7 +318,7 @@ target.set_noise(0.0, 0.0, measurement_noise)
 hunter = robot(-10.0, -10.0, 0.0)
 
 #print demo_grading(hunter, target, next_move)
-#print demo_grading_visual(hunter, target, next_move)
+print demo_grading_visual(hunter, target, next_move)
 
 number_runs = 1000
 total_ctr = 0
