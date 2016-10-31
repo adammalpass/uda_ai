@@ -88,11 +88,13 @@ def next_move(hunter_position, hunter_heading, target_measurement, max_distance,
         ############## estimate next n positions ##############################
         next_positions = [xy_estimate]
 
-        next_n = 15
+        next_n = 5
         prev_n_angle = new_angle
 
-        min_distance_to_hunter = 9999999999999
-        min_position = None
+        #min_distance_to_hunter = 9999999999999
+        #min_position = None
+        min_distance_to_hunter = distance_between(hunter_position, xy_estimate)
+        min_position = 0
 
         for n in range(1,next_n):
             prev_n_angle += average_angle_step
@@ -100,12 +102,13 @@ def next_move(hunter_position, hunter_heading, target_measurement, max_distance,
             ny_estimate = next_positions[n-1][1]+ average_step*sin(prev_n_angle)
             next_positions.append((nx_estimate,ny_estimate))
 
-            distance = distance_between(hunter_position, xy_estimate)
+            distance = distance_between(hunter_position, [nx_estimate,ny_estimate])# / (1+0.3*n)
 
             if distance < min_distance_to_hunter:
                 min_distance_to_hunter = distance
                 min_position = n
 
+        print "min_pos", min_position
 
 
 
@@ -301,7 +304,7 @@ target.set_noise(0.0, 0.0, measurement_noise)
 hunter = robot(-10.0, -10.0, 0.0)
 
 #print demo_grading(hunter, target, next_move)
-#print demo_grading_visual(hunter, target, next_move)
+print demo_grading_visual(hunter, target, next_move)
 
 number_runs = 1000
 total_ctr = 0
