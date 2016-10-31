@@ -96,25 +96,39 @@ def next_move(hunter_position, hunter_heading, target_measurement, max_distance,
         min_distance_to_hunter = distance_between(hunter_position, xy_estimate)
         min_position = 0
 
-        for n in range(1,next_n):
-            prev_n_angle += average_angle_step
-            nx_estimate = next_positions[n-1][0]+ average_step*cos(prev_n_angle)
-            ny_estimate = next_positions[n-1][1]+ average_step*sin(prev_n_angle)
-            next_positions.append((nx_estimate,ny_estimate))
+        if min_distance_to_hunter < max_distance:
+            reachable = True
+        else:
+            reachable = False
 
-            distance = distance_between(hunter_position, [nx_estimate,ny_estimate]) / (1+0.3*n)
+        while reachable is False:
 
-            if distance < min_distance_to_hunter:
-                min_distance_to_hunter = distance
-                min_position = n
+            for n in range(1,next_n):
+                prev_n_angle += average_angle_step
+                nx_estimate = next_positions[n-1][0]+ average_step*cos(prev_n_angle)
+                ny_estimate = next_positions[n-1][1]+ average_step*sin(prev_n_angle)
+                next_positions.append((nx_estimate,ny_estimate))
 
-        print "min_pos", min_position
+                distance = distance_between(hunter_position, [nx_estimate,ny_estimate])# / (1+0.5*n)
+
+                if distance < n*max_distance:
+                    min_distance_to_hunter = distance
+                    min_position = n
+                    reachable = True
+                    break
+                elif n is next_n -1:
+                    min_distance_to_hunter = distance
+                    min_position = n
+                    reachable = True
+
+
+        #print "min_pos", min_position
 
 
 
         ################# calculate hunter movement ############################
 
-        distance = min_distance_to_hunter
+        distance = min_distance_to_hunter# * (1+0.5*min_position)
         #distance = distance_between(hunter_position, xy_estimate)
         #current_turning = atan2(y_estimate - hunter_position[1], x_estimate - hunter_position[0])
         
@@ -304,7 +318,7 @@ target.set_noise(0.0, 0.0, measurement_noise)
 hunter = robot(-10.0, -10.0, 0.0)
 
 #print demo_grading(hunter, target, next_move)
-print demo_grading_visual(hunter, target, next_move)
+#print demo_grading_visual(hunter, target, next_move)
 
 number_runs = 1000
 total_ctr = 0
